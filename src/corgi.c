@@ -54,16 +54,17 @@ struct Token {
 };
 
 // Possible contents for KEYWORD tokens.
-#define NUM_KEYWORDS 15
+#define NUM_KEYWORDS 18
 const char *KEYWORDS[NUM_KEYWORDS] = {
     "and", "or", "not",
     "if", "else", "elif", "end",
     "while", "import", "function",
-    "until", "type", "return", "var", "let"
+    "until", "type", "return", "var", "let",
+    "do", "then", "in"
 };
 
 // Possible contents for SYMBOL tokens.
-const char *SYMBOLS = "()[]=<>;+-*/&|!.{}";
+const char *SYMBOLS = "()[]=<>;+-*/&|!.{}%";
 
 // Construct a token.
 struct Token build_token(enum TokenType type, long position, long length) {
