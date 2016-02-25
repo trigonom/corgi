@@ -25,7 +25,7 @@ struct Token {
         IDENTIFIER,
 
         // A semicolon or newline character.
-        END_OF_STATEMENT,
+        END_OF_LINE,
 
         // The end of the file, or a null character.
         END_OF_FILE,
@@ -98,7 +98,7 @@ struct Token read_token(FILE *file) {
     if (next == EOF || next == '\0') {
         return build_token(END_OF_FILE, position, 1);
     } else if (next == ';' || next == '\n') {
-        return build_token(END_OF_STATEMENT, position, 1);
+        return build_token(END_OF_LINE, position, 1);
     } else if (strchr(SYMBOLS, next) != NULL) {
         return build_token(SYMBOL, position, 1);
     }
