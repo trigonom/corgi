@@ -38,20 +38,15 @@ struct Token {
 
     // A token may store its metadata, or just a pointer to
     // an error message.
-    union {
+    // The absolute offset from the start of the file where
+    // the token starts.
+    long position;
 
-        struct {
-            // The absolute offset from the start of the file where
-            // the token starts.
-            long position;
+    // The length of the token.
+    long length;
 
-            // The length of the token.
-            long length;
-        };
-
-        // An error string, if this is an ERROR_TOKEN.
-        const char *error;
-    };
+    // An error string, if this is an ERROR_TOKEN.
+    const char *error;
 };
 
 // Possible contents for KEYWORD tokens.
@@ -68,13 +63,13 @@ const char *SYMBOLS = "()[]=<>;+-*/&|!";
 
 // Construct a token.
 struct Token build_token(enum TokenType type, long position, long length) {
-    struct Token t = { .type = type, .position = position, .length = length };
+    struct Token t = { .type = type, .position = position, .length = length, .error = NULL };
     return t;
 }
 
 // Construct an error token.
 struct Token error_token(const char *message, long position, long length) {
-    struct Token t = { .type = ERROR_TOKEN, .error = message };
+    struct Token t = { .type = ERROR_TOKEN, .position = position, .length = length, .error = message };
     return t;
 }
 
