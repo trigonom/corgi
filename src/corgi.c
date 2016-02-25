@@ -11,8 +11,45 @@ struct Token {
     // The type of the token.
     enum TokenType {
         NUMBER,
-        SYMBOL,
-        KEYWORD,
+
+        // Symbols
+        LPAREN,
+        RPAREN,
+        EQUALS,
+        LESS_THAN,
+        GREATER_THAN,
+        PLUS,
+        MINUS,
+        MULTIPLY,
+        DIVIDE,
+        BITWISE_AND,
+        BITWISE_OR,
+        BANG,
+        DOT,
+        LCURLYBRACE,
+        RCURLYBRACE,
+        MODULO,
+
+        // Keywords
+        AND,
+        NOT,
+        OR,
+        IF,
+        THEN,
+        ELSE,
+        ELIF,
+        WHILE,
+        UNTIL,
+        FOR,
+        IN,
+        DO,
+        END,
+        VAR,
+        LET,
+        TYPE,
+        IMPORT,
+        FUNCTION,
+        RETURN,
 
         // Two hyphens ('-'), followed by any characters
         // until the end of the current line.
@@ -53,19 +90,6 @@ struct Token {
     const char *error;
 };
 
-// Possible contents for KEYWORD tokens.
-#define NUM_KEYWORDS 18
-const char *KEYWORDS[NUM_KEYWORDS] = {
-    "and", "or", "not",
-    "if", "else", "elif", "end",
-    "while", "import", "function",
-    "until", "type", "return", "var", "let",
-    "do", "then", "in"
-};
-
-// Possible contents for SYMBOL tokens.
-const char *SYMBOLS = "()[]=<>;+-*/&|!.{}%";
-
 // Construct a token.
 struct Token build_token(enum TokenType type, long position, long length) {
     struct Token t = { .type = type, .position = position, .length = length, .error = NULL };
@@ -81,6 +105,7 @@ struct Token error_token(const char *message, long position, long length) {
 // Read the next token from a file handle and return it.
 // The file handle will be moved to after the end of
 // the token, unless it's EOF.
+
 struct Token read_token(FILE *file) {
 
     // Remember the position of the next character before
@@ -121,13 +146,35 @@ struct Token read_token(FILE *file) {
         }
     }
 
-    // Single-character tokens
+    // Possible contents for SYMBOL tokens.
+    static const char *SYMBOLS = "()[]=<>+-*/&|!.{}%";
+
+    // Check for single-character tokens, then symbols.
     if (next == EOF || next == '\0') {
         return build_token(END_OF_FILE, position, 1);
     } else if (next == ';' || next == '\n') {
         return build_token(END_OF_LINE, position, 1);
     } else if (strchr(SYMBOLS, next) != NULL) {
-        return build_token(SYMBOL, position, 1);
+        #define case_sym(character, type) case character: return build_token(type, position, 1); break;
+        switch (next) {
+            case_sym('(', LPAREN)
+            case_sym(')', RPAREN)
+            case_sym('=', EQUALS)
+            case_sym('<', LESS_THAN)
+            case_sym('>', GREATER_THAN)
+            case_sym('+', PLUS)
+            case_sym('-', MINUS)
+            case_sym('*', MULTIPLY)
+            case_sym('/', DIVIDE)
+            case_sym('&', BITWISE_AND)
+            case_sym('|', BITWISE_OR)
+            case_sym('!', BANG)
+            case_sym('.', DOT)
+            case_sym('{', LCURLYBRACE)
+            case_sym('}', RCURLYBRACE)
+            case_sym('%', MODULO)
+        }
+        #undef case_sym
     }
 
     // Strings
@@ -174,12 +221,29 @@ struct Token read_token(FILE *file) {
         return build_token(NUMBER, position, length);
     }
 
-    // Keywords are always in the KEYWORDS array.
-    for (int i = 0; i < NUM_KEYWORDS; i++) {
-        if (strcmp(KEYWORDS[i], word) == 0) {
-            return build_token(KEYWORD, position, length);
-        }
-    }
+    // Keywords are specific, predefined strings that have
+    // a corresponding token type.
+    #define check_keyword(string, type) if (strcmp(word, string) == 0) { return build_token(type, position, length); }
+        check_keyword("and", AND)
+        else check_keyword("not", NOT)
+        else check_keyword("or",  OR)
+        else check_keyword("if", IF)
+        else check_keyword("then", THEN)
+        else check_keyword("else", ELSE)
+        else check_keyword("elif", ELIF)
+        else check_keyword("while", WHILE)
+        else check_keyword("until", UNTIL)
+        else check_keyword("for", FOR)
+        else check_keyword("in", IN)
+        else check_keyword("do", DO)
+        else check_keyword("end", END)
+        else check_keyword("var", VAR)
+        else check_keyword("let", LET)
+        else check_keyword("type", TYPE)
+        else check_keyword("import", IMPORT)
+        else check_keyword("function", FUNCTION)
+        else check_keyword("return", RETURN)
+    #undef check_keyword
 
     // Identifiers start with a letter or an underscore,
     // optionally followed by letters, digits and underscores.
