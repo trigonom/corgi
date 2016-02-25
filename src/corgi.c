@@ -59,7 +59,7 @@ const char *KEYWORDS[NUM_KEYWORDS] = {
 };
 
 // Possible contents for SYMBOL tokens.
-const char *SYMBOLS = "()[]=<>;+-*/&|!";
+const char *SYMBOLS = "()[]=<>;+-*/&|!.{}";
 
 // Construct a token.
 struct Token build_token(enum TokenType type, long position, long length) {
