@@ -14,6 +14,10 @@ struct Token {
         SYMBOL,
         KEYWORD,
 
+        // Two hyphens ('-'), followed by any characters
+        // until the end of the current line.
+        COMMENT,
+
         // Any string of characters surrounded by
         // double quotes (""). Escape characters
         // are not supported as of yet.
@@ -87,6 +91,33 @@ struct Token read_token(FILE *file) {
     while (next == ' ') {
         position = ftell(file);
         next = fgetc(file);
+    }
+
+    // If the next two characters are hyphens ('-'), we
+    // should include the rest of the line in a token,
+    // except for the newline character.
+    //
+    // We don't include the newline character because it may
+    // terminate a statement preceding the comment.
+    if (next == '-') {
+
+        char after_next = fgetc(file);
+        if (after_next == '-') {
+
+            // Skip to the end of the line or EOF.
+            long length = 2;
+            while (next != '\n' && next != EOF) {
+                length++;
+                next = fgetc(file);
+            }
+
+            return build_token(COMMENT, position, length);
+
+        } else {
+
+            // Return to where we were otherwise.
+            ungetc(after_next, file);
+        }
     }
 
     // Single-character tokens
@@ -215,6 +246,10 @@ int main(int argc, char **argv)  {
             // Report the error.
             printf(" Error: %s\n", t.error);
             printf("  while reading %li: '%s'\n", t.position, text);
+        } else if (t.type == COMMENT) {
+
+            // Ignore comments completely.
+            continue;
         } else {
             tokens[i] = t;
             num_tokens++;
