@@ -88,11 +88,20 @@ struct Token {
 
     // An error string, if this is an ERROR_TOKEN.
     const char *error;
+
+    // Value for strings and identifiers
+    char *value;
 };
 
 // Construct a token.
 struct Token build_token(enum TokenType type, long position, long length) {
-    struct Token t = { .type = type, .position = position, .length = length, .error = NULL };
+    struct Token t = { .type = type, .position = position, .length = length, .error = NULL, .value = NULL };
+    return t;
+}
+
+// Construct a token with a string.
+struct Token build_token_string(enum TokenType type, long position, long length, char *value) {
+    struct Token t = { .type = type, .position = position, .length = length, .error = NULL, .value = strdup(value) };
     return t;
 }
 
@@ -114,7 +123,7 @@ struct Token read_token(FILE *file) {
     char next = fgetc(file);
 
     // Ignore whitespace, but not new-line characters.
-    while (next == ' ') {
+    while (next == ' ' || next == '\t') {
         position = ftell(file);
         next = fgetc(file);
     }
@@ -149,6 +158,11 @@ struct Token read_token(FILE *file) {
     // Possible contents for SYMBOL tokens.
     static const char *SYMBOLS = "()[]=<>+-*/&|!.{}%";
 
+    // Buffer for identifiers / strings
+    char buffer[256] = {0};
+    // Buffer location / pointer
+    int bp = 0;
+
     // Check for single-character tokens, then symbols.
     if (next == EOF || next == '\0') {
         return build_token(END_OF_FILE, position, 1);
@@ -182,6 +196,7 @@ struct Token read_token(FILE *file) {
 
         next = fgetc(file);
         while (next != '"' && next != EOF) {
+            buffer[bp++] = next;
             next = fgetc(file);
         }
 
@@ -192,7 +207,7 @@ struct Token read_token(FILE *file) {
         if (next == EOF) {
             return error_token("unterminated string", position, end - position);
         } else {
-            return build_token(STRING, position, end - position);
+            return build_token_string(STRING, position, end - position, buffer);
         }
     }
 
@@ -248,16 +263,18 @@ struct Token read_token(FILE *file) {
     // Identifiers start with a letter or an underscore,
     // optionally followed by letters, digits and underscores.
     if (word[0] == '_' || isalpha(word[0])) {
+        buffer[0] = word[0];
 
         // Ensure that there are no invalid characters in the
         // identifier.
         for (int i = 1; i < length; i++) {
+            buffer[i] = word[i];
             if (word[i] != '_' && !isalpha(word[i]) && !isdigit(word[i])) {
                 return error_token("identifier contains an invalid character", position, length);
             }
         }
 
-        return build_token(IDENTIFIER, position, length);
+        return build_token_string(IDENTIFIER, position, length, buffer);
     }
 
     return error_token("unidentified token", position, length);
@@ -314,6 +331,7 @@ int main(int argc, char **argv)  {
         } else if (t.type == COMMENT) {
 
             // Ignore comments completely.
+            i--;
             continue;
         } else {
             tokens[i] = t;
@@ -327,6 +345,17 @@ int main(int argc, char **argv)  {
 
     // Reallocate the array to the real number of tokens.
     tokens = realloc(tokens, num_tokens * sizeof(struct Token));
+
+    for(long i = 0; i < num_tokens; i++) {
+        struct Token t = tokens[i];
+        printf("%d", t.type);
+
+        if(t.value != NULL) {
+            printf(" (%s)", t.value);
+            free(t.value);
+        }
+        printf("\n");
+    }
 
     // Clean up and return.
     free(tokens);
