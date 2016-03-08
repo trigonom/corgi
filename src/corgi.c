@@ -112,7 +112,7 @@ struct Token read_token(FILE *file) {
     char next = fgetc(file);
 
     // Ignore whitespace, but not new-line characters.
-    while (next == ' ') {
+    while (isspace(next) && next != '\n') {
         position = ftell(file);
         next = fgetc(file);
     }
