@@ -80,8 +80,6 @@ struct Token {
 
     enum TokenType type;
 
-    // A token may store its metadata, or just a pointer to
-    // an error message.
     // The absolute offset from the start of the file where
     // the token starts.
     long position;

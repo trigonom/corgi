@@ -4,7 +4,7 @@
 #include "lexer.h"
 
 int main(int argc, char **argv) {
-	// For now, we just want the path to the file to
+    // For now, we just want the path to the file to
     // compile, and nothing else.
     if (argc != 2) {
         printf("Usage: %s source-file.cg\n", argv[0]);
