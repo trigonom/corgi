@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
 
 	for(long i = 0; i < num_tokens; i++) {
         struct Token t = tokens[i];
-        printf("%d", t.type);
+        printf("%s", get_token_string(t.type));
 
         if(t.value != NULL) {
             printf(" (%s)", t.value);

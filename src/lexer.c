@@ -1,5 +1,53 @@
 #include "lexer.h"
 
+char *get_token_string(enum TokenType type) {
+    switch(type) {
+        case NUMBER: return "number";
+        case LPAREN: return "lparen";
+        case RPAREN: return "rparen";
+        case EQUALS: return "equals";
+        case LESS_THAN: return "less than";
+        case GREATER_THAN: return "greater than";
+        case PLUS: return "plus";
+        case MINUS: return "minus";
+        case MULTIPLY: return "multiply";
+        case DIVIDE: return "divide";
+        case BITWISE_AND: return "bitwise and";
+        case BITWISE_OR: return "bitwise or";
+        case BANG: return "bang";
+        case DOT: return "dot";
+        case LCURLYBRACE: return "lcurlybrace";
+        case RCURLYBRACE: return "rcurlybrace";
+        case MODULO: return "modulo";
+        case AND: return "and";
+        case NOT: return "not";
+        case OR: return "or";
+        case IF: return "if";
+        case THEN: return "then";
+        case ELSE: return "else";
+        case ELIF: return "elif";
+        case WHILE: return "while";
+        case UNTIL: return "until";
+        case FOR: return "for";
+        case IN: return "in";
+        case DO: return "do";
+        case END: return "end";
+        case VAR: return "var";
+        case LET: return "let";
+        case TYPE: return "type";
+        case IMPORT: return "import";
+        case FUNCTION: return "function";
+        case RETURN: return "return";
+        case COMMENT: return "comment";
+        case STRING: return "string";
+        case IDENTIFIER: return "identifier";
+        case END_OF_LINE: return "end of line";
+        case END_OF_FILE: return "end of file";
+        case ERROR_TOKEN: return "error token";
+        default: return "unknown";
+    }
+}
+
 // Construct a token.
 struct Token build_token(enum TokenType type, long position, long length) {
     struct Token t = { .type = type, .position = position, .length = length, .error = NULL, .value = NULL };

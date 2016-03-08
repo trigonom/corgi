@@ -94,6 +94,7 @@ struct Token {
     char *value;
 };
 
+char *get_token_string(enum TokenType type);
 struct Token build_token(enum TokenType type, long position, long length);
 struct Token build_token_string(enum TokenType type, long position, long length, char *value);
 struct Token error_token(const char *message, long position, long length);
